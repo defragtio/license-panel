@@ -141,6 +141,9 @@ const Panel = {
             this.licensesData = licensesResult.content;
             this.activationsData = activationsResult.content;
 
+            // Auto-detect key prefix from loaded licenses
+            this.api.detectKeyPrefix(this.licensesData.licenses);
+
             // Render current page
             this.renderDashboard();
             if (this.currentPage === 'licenses') this.renderLicenses();
@@ -333,8 +336,8 @@ const Panel = {
             <div class="form-group">
                 <label>Serial Key</label>
                 <div style="display:flex; gap:8px;">
-                    <input type="text" id="add-serial-key" class="form-control" placeholder="LSKEY-XXXX-XXXX-XXXX-XXXX" 
-                           pattern="^LSKEY-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$" style="flex:1;">
+                    <input type="text" id="add-serial-key" class="form-control" placeholder="${this.api.keyPrefix}-XXXX-XXXX-XXXX-XXXX" 
+                           style="flex:1;">
                     <button type="button" class="btn btn-secondary" onclick="document.getElementById('add-serial-key').value = Panel.api.generateSerialKey();"><i class="fa fa-dice"></i> Auto</button>
                 </div>
             </div>
@@ -362,8 +365,10 @@ const Panel = {
         const note = document.getElementById('add-note').value.trim();
 
         // Validasi format
-        if (!/^LSKEY-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(serialKey)) {
-            this.showToast('Format serial key tidak valid! Harus: LSKEY-XXXX-XXXX-XXXX-XXXX', 'error');
+        const prefix = this.api.keyPrefix;
+        const keyRegex = new RegExp(`^${prefix}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$`);
+        if (!keyRegex.test(serialKey)) {
+            this.showToast(`Format serial key tidak valid! Harus: ${prefix}-XXXX-XXXX-XXXX-XXXX`, 'error');
             return;
         }
 

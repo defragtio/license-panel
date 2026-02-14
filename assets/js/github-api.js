@@ -13,8 +13,19 @@ class GitHubAPI {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/vnd.github.v3+json',
             'Content-Type': 'application/json',
-            'User-Agent': 'LuckySpin-LicensePanel/1.0'
+            'User-Agent': 'License-Panel/2.0'
         };
+        this.keyPrefix = 'LSKEY'; // default, auto-detected after loadData
+    }
+
+    // ===== Detect Key Prefix from Licenses =====
+    detectKeyPrefix(licenses) {
+        if (!licenses || !licenses.length) return;
+        const firstKey = licenses[0].serial_key || '';
+        const match = firstKey.match(/^([A-Z]+KEY)-/);
+        if (match) {
+            this.keyPrefix = match[1];
+        }
     }
 
     // ===== Test Connection =====
@@ -159,7 +170,7 @@ class GitHubAPI {
             }
             return result;
         };
-        return `LSKEY-${segment()}-${segment()}-${segment()}-${segment()}`;
+        return `${this.keyPrefix}-${segment()}-${segment()}-${segment()}-${segment()}`;
     }
 
     // ===== Format Timestamp WIB =====
