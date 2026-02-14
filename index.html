@@ -222,7 +222,7 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Serial Key</th>
-                                        <th>Tipe</th>
+                                        <th>Max Domain</th>
                                         <th>Dibuat</th>
                                         <th>Catatan</th>
                                         <th>Status Aktivasi</th>
@@ -289,22 +289,8 @@
                                         <input type="number" id="gen-count" value="1" min="1" max="20" class="form-control">
                                     </div>
                                     <div class="form-group">
-                                        <label>Tipe License</label>
-                                        <select id="gen-type" class="form-control">
-                                            <option value="lifetime">Lifetime</option>
-                                            <option value="standard">Standard</option>
-                                            <option value="premium">Premium</option>
-                                            <option value="enterprise">Enterprise</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
                                         <label>Max Domain</label>
-                                        <select id="gen-max-domains" class="form-control">
-                                            <option value="1">1 Domain (Single)</option>
-                                            <option value="3">3 Domain</option>
-                                            <option value="5">5 Domain</option>
-                                            <option value="10">10 Domain</option>
-                                        </select>
+                                        <input type="number" id="gen-max-domains" value="1" min="1" class="form-control" placeholder="1 = single domain, lebih dari 1 = multi-domain">
                                     </div>
                                     <div class="form-group">
                                         <label>Catatan (opsional)</label>

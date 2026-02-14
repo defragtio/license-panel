@@ -236,7 +236,7 @@ const Panel = {
                 <tr data-key="${lic.serial_key}">
                     <td>${idx + 1}</td>
                     <td><span class="serial-key">${lic.serial_key}</span></td>
-                    <td><span class="badge badge-${lic.type || 'standard'}">${lic.type || 'standard'}</span></td>
+                    <td>${maxD > 1 ? maxD + ' domain' : 'Single'}</td>
                     <td>${lic.issued_date || lic.created_at || '-'}</td>
                     <td>${lic.notes || lic.note || '-'}</td>
                     <td>${statusHtml}</td>
@@ -339,22 +339,8 @@ const Panel = {
                 </div>
             </div>
             <div class="form-group">
-                <label>Tipe License</label>
-                <select id="add-type" class="form-control">
-                    <option value="lifetime">Lifetime</option>
-                    <option value="standard">Standard</option>
-                    <option value="premium">Premium</option>
-                    <option value="enterprise">Enterprise</option>
-                </select>
-            </div>
-            <div class="form-group">
                 <label>Max Domain</label>
-                <select id="add-max-domains" class="form-control">
-                    <option value="1">1 Domain (Single)</option>
-                    <option value="3">3 Domain</option>
-                    <option value="5">5 Domain</option>
-                    <option value="10">10 Domain</option>
-                </select>
+                <input type="number" id="add-max-domains" value="1" min="1" class="form-control" placeholder="1 = single, lebih dari 1 = multi-domain">
             </div>
             <div class="form-group">
                 <label>Catatan (opsional)</label>
@@ -373,7 +359,6 @@ const Panel = {
     // ===== Add License =====
     async addLicense() {
         const serialKey = document.getElementById('add-serial-key').value.trim().toUpperCase();
-        const type = document.getElementById('add-type').value;
         const note = document.getElementById('add-note').value.trim();
 
         // Validasi format
@@ -392,11 +377,11 @@ const Panel = {
             const maxDomains = parseInt(document.getElementById('add-max-domains')?.value || '1');
             const newLicense = {
                 serial_key: serialKey,
-                type: type,
+                type: 'lifetime',
                 issued_date: this.api.formatTimestampWIB(),
                 max_domains: maxDomains,
                 allow_multiple_domains: maxDomains > 1,
-                notes: note || `${type} license - ${maxDomains > 1 ? maxDomains + ' domains allowed' : '1 domain only'} - Belum ada domain terhubung`
+                notes: note || `Lifetime license - ${maxDomains > 1 ? maxDomains + ' domains allowed' : '1 domain only'} - Belum ada domain terhubung`
             };
 
             this.licensesData.licenses.push(newLicense);
@@ -427,22 +412,8 @@ const Panel = {
                 <input type="text" class="form-control" value="${license.serial_key}" disabled style="background:#f5f5f5;">
             </div>
             <div class="form-group">
-                <label>Tipe License</label>
-                <select id="edit-type" class="form-control">
-                    <option value="lifetime" ${license.type === 'lifetime' ? 'selected' : ''}>Lifetime</option>
-                    <option value="standard" ${license.type === 'standard' ? 'selected' : ''}>Standard</option>
-                    <option value="premium" ${license.type === 'premium' ? 'selected' : ''}>Premium</option>
-                    <option value="enterprise" ${license.type === 'enterprise' ? 'selected' : ''}>Enterprise</option>
-                </select>
-            </div>
-            <div class="form-group">
                 <label>Max Domain</label>
-                <select id="edit-max-domains" class="form-control">
-                    <option value="1" ${(license.max_domains || 1) === 1 ? 'selected' : ''}>1 Domain (Single)</option>
-                    <option value="3" ${license.max_domains === 3 ? 'selected' : ''}>3 Domain</option>
-                    <option value="5" ${license.max_domains === 5 ? 'selected' : ''}>5 Domain</option>
-                    <option value="10" ${license.max_domains === 10 ? 'selected' : ''}>10 Domain</option>
-                </select>
+                <input type="number" id="edit-max-domains" value="${license.max_domains || 1}" min="1" class="form-control" placeholder="1 = single, lebih dari 1 = multi-domain">
             </div>
             <div class="form-group">
                 <label>Catatan</label>
@@ -467,11 +438,10 @@ const Panel = {
                 return;
             }
 
-            const type = document.getElementById('edit-type').value;
             const maxDomains = parseInt(document.getElementById('edit-max-domains').value) || 1;
             const note = document.getElementById('edit-note').value.trim();
 
-            this.licensesData.licenses[licIdx].type = type;
+            this.licensesData.licenses[licIdx].type = 'lifetime';
             this.licensesData.licenses[licIdx].max_domains = maxDomains;
             this.licensesData.licenses[licIdx].allow_multiple_domains = maxDomains > 1;
             if (note) {
@@ -509,7 +479,7 @@ const Panel = {
                 <span class="detail-value serial-key">${license.serial_key}</span>
                 
                 <span class="detail-label">Tipe</span>
-                <span class="detail-value"><span class="badge badge-${license.type || 'standard'}">${license.type || 'standard'}</span></span>
+                <span class="detail-value"><span class="badge badge-active">Lifetime</span></span>
                 
                 <span class="detail-label">Dibuat</span>
                 <span class="detail-value">${license.issued_date || license.created_at || '-'}</span>
@@ -773,7 +743,7 @@ const Panel = {
                 const typeLabel = lic.allow_multiple_domains
                     ? `${maxD} domains allowed`
                     : '1 domain only';
-                lic.notes = `${lic.type || 'Basic'} license - ${typeLabel} - Belum ada domain terhubung`;
+                lic.notes = `Lifetime license - ${typeLabel} - Belum ada domain terhubung`;
             }
 
             this.licensesData.licenses[licIdx] = lic;
@@ -787,7 +757,6 @@ const Panel = {
     // ===== Generate Keys =====
     async generateKeys() {
         const count = parseInt(document.getElementById('gen-count').value) || 1;
-        const type = document.getElementById('gen-type').value;
         const note = document.getElementById('gen-note').value.trim();
 
         if (count < 1 || count > 20) {
@@ -810,11 +779,11 @@ const Panel = {
             const maxDomains = parseInt(document.getElementById('gen-max-domains')?.value || '1');
             this.licensesData.licenses.push({
                 serial_key: newKey,
-                type: type,
+                type: 'lifetime',
                 issued_date: this.api.formatTimestampWIB(),
                 max_domains: maxDomains,
                 allow_multiple_domains: maxDomains > 1,
-                notes: note || `Generated via Panel - ${maxDomains > 1 ? maxDomains + ' domains allowed' : '1 domain only'} - Belum ada domain terhubung`
+                notes: note || `Lifetime license - ${maxDomains > 1 ? maxDomains + ' domains allowed' : '1 domain only'} - Belum ada domain terhubung`
             });
         }
 
